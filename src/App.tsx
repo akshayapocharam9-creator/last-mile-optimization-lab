@@ -17,16 +17,25 @@ export function App() {
   const [activeSection, setActiveSection] = useState<ActiveSection>('simulation');
   const [scenario, setScenario] = useState<Scenario>(PRESET_5_CUSTOMER);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<AlgorithmType>('ins-2opt');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   return (
     <div className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col font-sans antialiased selection:bg-blue-600 selection:text-white">
       {/* Top Navbar */}
-      <Navbar />
+      <Navbar
+        isMobileMenuOpen={isMobileMenuOpen}
+        onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
+      />
 
       {/* Main Body with Sidebar + Active Content View */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
         {/* Navigation Sidebar */}
-        <Sidebar activeSection={activeSection} onSelectSection={setActiveSection} />
+        <Sidebar
+          activeSection={activeSection}
+          onSelectSection={setActiveSection}
+          isMobileOpen={isMobileMenuOpen}
+          onCloseMobile={() => setIsMobileMenuOpen(false)}
+        />
 
         {/* Dynamic Section Content Area */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-[#0b0f19]">

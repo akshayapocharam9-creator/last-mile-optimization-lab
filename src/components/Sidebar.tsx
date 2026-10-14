@@ -9,14 +9,22 @@ import {
   FileSpreadsheet,
   Presentation,
   Info,
+  X,
 } from 'lucide-react';
 
 interface SidebarProps {
   activeSection: ActiveSection;
   onSelectSection: (section: ActiveSection) => void;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSelectSection }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  activeSection,
+  onSelectSection,
+  isMobileOpen = false,
+  onCloseMobile,
+}) => {
   const navItems: { id: ActiveSection; label: string; icon: React.ReactNode; badge?: string }[] = [
     {
       id: 'simulation',
@@ -63,11 +71,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSelectSection
     },
   ];
 
-  return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between p-3 select-none flex-shrink-0">
+  const handleItemClick = (id: ActiveSection) => {
+    onSelectSection(id);
+    if (onCloseMobile) onCloseMobile();
+  };
+
+  const sidebarContent = (
+    <div className="flex flex-col justify-between h-full p-3 select-none">
       <div>
-        <div className="px-3 py-2 mb-2">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Navigation</p>
+        <div className="flex items-center justify-between px-3 py-2 mb-2">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 m-0">Navigation</p>
+          {onCloseMobile && (
+            <button
+              onClick={onCloseMobile}
+              className="md:hidden text-slate-400 hover:text-white p-1 rounded-lg"
+              aria-label="Close menu"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
         <nav className="space-y-1">
@@ -76,7 +98,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSelectSection
             return (
               <button
                 key={item.id}
-                onClick={() => onSelectSection(item.id)}
+                onClick={() => handleItemClick(item.id)}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition ${
                   isActive
                     ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30 font-bold'
@@ -112,6 +134,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSelectSection
           Lexicographic Optimization: 1° Max On-Time, 2° Min Distance
         </p>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar (always visible on md+) */}
+      <aside className="hidden md:flex w-64 bg-slate-900 border-r border-slate-800 flex-col flex-shrink-0">
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile Drawer Overlay */}
+      {isMobileOpen && (
+        <div className="fixed inset-0 z-40 md:hidden flex">
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+            onClick={onCloseMobile}
+          />
+          <aside className="relative w-64 max-w-[80vw] bg-slate-900 border-r border-slate-800 z-50 flex flex-col shadow-2xl animate-fade-in">
+            {sidebarContent}
+          </aside>
+        </div>
+      )}
+    </>
   );
 };
